@@ -214,10 +214,11 @@ When it is time for a session, the doctor can click "Join Now" — the backend p
 
 - **Appointment Reminders:** scheduled SMS/email reminders for upcoming appointments (background worker or cron job integration).
 
-- **Role-based Administration:** admin endpoints for seeding accounts, managing doctors, and viewing basic metrics.
-
 - **Improved Auditing & Logging:** request timing logs and error tracking to help diagnose issues and measure performance.
 
+- **Protected Endpoints:** While logging, an access token with 1 hour expiry is generated which is used for futher fetching. Once access token gets expired, the request is blocked and no sensitive data is leaked ensure data privacy.
+  So the doctor must again login and continue functionality.
+  
 ### Notes on Risk Indicator
 
 - **Privacy & Security:** All requests involving PHI must be authenticated and sent over HTTPS; avoid returning sensitive raw values to unauthorized clients.
