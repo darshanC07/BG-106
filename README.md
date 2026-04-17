@@ -175,3 +175,51 @@ When it is time for a session, the doctor can click "Join Now" — the backend p
 ---
 
 *MediConnect Doctor Dashboard — BackForge Healthtech Competition*
+
+---
+
+## Round 2
+
+### Additional Features
+
+- **Blood-based Risk Indicator:** Backend endpoint `POST /api/doctor/risk/blood` accepts recent blood test values and returns a computed risk object. Example request payload:
+
+	```json
+	{
+		"patient_id": "<id>",
+		"tests": {
+			"hemoglobin": 12.3,
+			"wbc": 7800,
+			"platelets": 250000,
+			"glucose_fasting": 95,
+			"cholesterol_total": 180
+		}
+	}
+	```
+
+	Example response:
+
+	```json
+	{
+		"score": 27,
+		"level": "Moderate",
+		"flags": ["low_hemoglobin", "elevated_cholesterol"],
+		"recommendation": "Advisory only — consider lifestyle changes and follow-up labs in 4 weeks."
+	}
+	```
+
+	- Implementation notes: the backend uses a simple weighted scoring algorithm against standard clinical thresholds to produce a numeric score and categorical level (`Low`, `Moderate`, `High`). Results are advisory only and must be interpreted by a clinician.
+
+- **Export / Download:** endpoints to export prescriptions, invoices, and selected medical records as PDF for patient downloads.
+
+- **Appointment Reminders:** scheduled SMS/email reminders for upcoming appointments (background worker or cron job integration).
+
+- **Role-based Administration:** admin endpoints for seeding accounts, managing doctors, and viewing basic metrics.
+
+- **Improved Auditing & Logging:** request timing logs and error tracking to help diagnose issues and measure performance.
+
+### Notes on Risk Indicator
+
+- **Privacy & Security:** All requests involving PHI must be authenticated and sent over HTTPS; avoid returning sensitive raw values to unauthorized clients.
+- **Clinical Disclaimer:** The blood-based risk indicator is a decision-support tool and not a medical diagnosis. Always consult clinical judgement.
+
