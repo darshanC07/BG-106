@@ -7,7 +7,7 @@
    All API endpoints documented below for backend teams.
    ============================================================ */
 
-const API = 'http://localhost:8000/api';
+const API = 'http://127.0.0.1:5000/api';
 
 /* ============================================================
    API ENDPOINT REFERENCE — DOCTOR PORTAL

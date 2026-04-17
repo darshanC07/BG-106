@@ -1,5 +1,9 @@
 from firebase_admin import credentials, initialize_app, db, auth 
 import os
+import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 cred = credentials.Certificate({
     "type": os.getenv("type"),
@@ -21,6 +25,26 @@ initialize_app(cred, {
 
 ref = db.reference("/")
 
+ref.child("doctors").child("pKqeRyLKUpPS5U4bCgtw6pQvHzq2").set({
+"id": "pKqeRyLKUpPS5U4bCgtw6pQvHzq2",
+"name": "Asha Kapoor",
+"email": "asha.kapoor@gmail.com",
+"phone": "+91-9876543210",
+"hospital": "City Health Clinic",
+"address": "123 MG Road, Pune, Maharashtra, India",
+"specialty": "Cardiology",
+"license_no": "MH-123456",
+"experience_years": 12,
+"fee": 750,
+"qualifications": "MBBS, MD (Cardiology)",
+"languages": "English, Hindi, Marathi",
+"bio": "Experienced cardiologist with 12 years of clinical practice specializing in heart disease management and preventive cardiology.",
+"profile_picture_url": "",
+"profile_visibility": "public",
+"notif_pref": "All notifications",
+"is_active": "true",
+"created_at": "2024-08-01T10:15:30Z",
+"updated_at": "2026-04-17T08:00:00Z"
 
-ref.child(path).set(data)
+})
        

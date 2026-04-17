@@ -29,6 +29,7 @@ dependencies = [
     { name = "firebase-admin" },
     { name = "flask" },
     { name = "flask-cors" },
+    { name = "pyjwt" },
 ]
 
 [package.metadata]
@@ -37,6 +38,7 @@ requires-dist = [
     { name = "firebase-admin", specifier = ">=7.4.0" },
     { name = "flask", specifier = ">=3.1.3" },
     { name = "flask-cors", specifier = ">=6.0.2" },
+    { name = "pyjwt", specifier = ">=2.12.1" },
 ]
 
 [[package]]
