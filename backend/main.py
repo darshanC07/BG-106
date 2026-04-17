@@ -269,8 +269,16 @@ def get_records():
     # for doc_id,doc in docs.items():
     end = datetime.now()
     print("response time : " + str((end - start).total_seconds()) + " seconds")
-    return jsonify(docs),200
-
+    for doc_id, doc in (docs or {}).items():
+        if patient_id and doc.get('patient_id') != patient_id:
+            continue
+        if record_type and doc.get('type') != record_type:
+            continue
+        if search and search.lower() not in doc.get('description', '').lower():
+            continue
+        records.append(doc)
+        
+    return jsonify({"records": records}), 200
 
 @app.route('/upload-dummy', methods=['GET'])
 def upload_dummy():
