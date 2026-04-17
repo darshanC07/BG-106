@@ -145,6 +145,23 @@ When it is time for a session, the doctor can click "Join Now" — the backend p
 
 ---
 
+**Backend**
+
+- **Implemented Endpoints:** `GET /api` (health), `GET /db-status` (database read), `POST /api/doctor/auth/register` (create doctor via Firebase Admin + seed doctor record), `POST /api/doctor/auth/login` (Firebase REST sign-in + return doctor data and JWT), `GET/PUT /api/doctor/profile` (read/update profile), `PUT /api/doctor/profile/password` (change password via Admin SDK), `GET /api/doctor/auth/me` (current doctor), `GET /api/doctor/records` (list medical records). See implementation in [backend/main.py](backend/main.py#L1-L242).
+
+- **Data storage:** Doctors and related records are stored under the Realtime Database path `doctors` (used by the endpoints above).
+
+- **JWT authentication:**
+	- **Generation:** server issues a signed JWT (HS256) with payload `{ "uid": <user id>, "exp": <1 hour> }` using the `BACKEND_SECRET_KEY`.
+	- **Verification:** protected endpoints use a `require_auth` decorator that reads `Authorization: Bearer <token>`, verifies signature and expiry, and attaches `uid` to the request.
+	- **Importance:** JWTs allow stateless authentication (no server-side session store), short-lived tokens reduce risk if leaked, and the frontend can include the token with every request to securely identify the doctor.
+
+- **Notes & recommendations:**
+	- Switch any hard-coded API keys in code to environment variables and ensure the Firebase Admin `private_key` is unescaped (real newlines) before initialization.
+	- Handle missing DB entries gracefully (endpoints default to empty objects when records are absent).
+
+- **Performance:** average observed response time in logs: **0.394 seconds**.
+
 ## Evaluation Criteria
 
 | Area                                   | Weight |
