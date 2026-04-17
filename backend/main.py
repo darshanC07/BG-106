@@ -6,11 +6,15 @@ import requests
 from firebase_admin import credentials, initialize_app, db, auth
 import jwt
 from functools import wraps
+import json
 
 app = Flask(__name__)
 app.secret_key = getenv("FLASK_SECRET_KEY", urandom(32).hex())
 API_KEY = getenv("apiKey")
-CORS(app, supports_credentials=True)
+CORS(app, resources={r"/api/*": {"origins": "*"}},
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     supports_credentials=True)
 
 # Firebase Initialization
 cred = credentials.Certificate({
@@ -53,10 +57,14 @@ def verify_token(token):
     except jwt.InvalidTokenError:
         raise Exception("Invalid token")
 
+from flask import request
 
 def require_auth(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
+        if request.method == "OPTIONS":
+            return '', 200
+
         token = request.headers.get("Authorization")
 
         if not token:
@@ -72,8 +80,8 @@ def require_auth(f):
             return jsonify({"error": str(e)}), 401
 
         return f(*args, **kwargs)
-    return wrapper
 
+    return wrapper
 # ---------------- ROUTES ---------------- #
 
 @app.route("/api", methods=["GET"])
@@ -193,8 +201,6 @@ def login():
     return jsonify({"error": "Invalid credentials"}), 401
 
 
-# ---------------- PROFILE ---------------- #
-
 @app.route("/api/doctor/profile", methods=["GET"])
 @require_auth
 def get_profile():
@@ -252,6 +258,10 @@ def get_current_user():
 @app.route('/api/doctor/records', methods=['GET'])
 @require_auth
 def get_records():
+    patient_id = request.args.get('patient_id')
+    record_type = request.args.get('type')
+    search = request.args.get('search')
+    
     start = datetime.now()
     docs = ref.child('medical_records').get()
     records = []
@@ -259,8 +269,45 @@ def get_records():
     # for doc_id,doc in docs.items():
     end = datetime.now()
     print("response time : " + str((end - start).total_seconds()) + " seconds")
-    return jsonify({"records": docs})
+    return jsonify(docs),200
 
+
+@app.route('/upload-dummy', methods=['GET'])
+def upload_dummy():
+    with open('medical_records.json') as f:
+        data = json.load(f)
+
+    for record in data:
+        ref.child('medical_records').push(record)
+
+    return jsonify({"message": "Dummy data uploaded!"})
+
+@app.route('/api/doctor/patients', methods=['GET'])
+@require_auth
+def get_patients():
+    search = request.args.get('search', '').lower()
+    
+    data = ref.child('patients').get() or {}
+    
+    patients = []
+    
+    for pid, p in data.items():
+        # if search and search not in p.get('name', '').lower():
+        #     continue
+
+        patients.append({
+            "id": pid,
+            "name": p.get("name"),
+            "email": p.get("email"),
+            "phone": p.get("phone"),
+            "age": p.get("age"),
+            "gender": p.get("gender"),
+            "last_visit": p.get("last_visit"),
+            "total_visits": p.get("total_visits", 0)
+        })
+
+    print(f"Fetched {len(patients)} patients from database")
+    return jsonify(patients), 200
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
